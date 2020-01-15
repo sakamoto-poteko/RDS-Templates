@@ -59,6 +59,14 @@
             },
             "defaultValue": false
         },
+        "domainJoinType": {
+            "type": "string",
+            "defaultValue": "AD",
+            "allowedValues": [
+                "AD",
+                "AzureAD"
+            ]
+        },
         "existingDomainusername": {
             "type": "string",
             "metadata": {
@@ -193,7 +201,8 @@
                     }
                 },
                 "licenseType": "Windows_Client"
-            }
+            },
+            "identity": "[if(equals(parameters('domainJoinType'), 'AzureAD', 'systemAssigned'), json('null'))]"
         }
     ],
     "outputs": {}

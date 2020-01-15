@@ -115,6 +115,14 @@
             },
             "defaultValue": ""
         },
+        "domainJoinType": {
+            "type": "string",
+            "defaultValue": "AD",
+            "allowedValues": [
+                "AD",
+                "AzureAD"
+            ]
+        },
         "domainToJoin": {
             "type": "string",
             "metadata": {
@@ -332,6 +340,9 @@
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
                     },
+                    "domainJoinType": {
+                        "value": "[parameters('domainJoinType')]"
+                    },
                     "existingDomainusername": {
                         "value": "[variables('existingDomainUsername')]"
                     },
@@ -362,8 +373,29 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('rdshPrefix'), copyindex(),'/', 'aadjoin')]",
+            "location": "[parameters('location')]",
+            "condition": "[equals(parameters('domainJoinType'), 'AzureAD')]",
+            "dependsOn": [
+                "[variables('vmCreation-linkedTemplate_name')]"
+            ],
+            "copy": {
+                "name": "rdsh-aadjoin-loop",
+                "count": "[parameters('rdshNumberOfInstances')]"
+            },
+            "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "0.3",
+                "autoUpgradeMinorVersion": true
+            }
+        },
+        {
+            "apiVersion": "2018-10-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('rdshPrefix'), copyindex(),'/', 'joindomain')]",
             "location": "[parameters('location')]",
+            "condition": "[equals(parameters('domainJoinType'), 'AD')]",
             "dependsOn": [
                 "[variables('vmCreation-linkedTemplate_name')]"
             ],
@@ -394,7 +426,8 @@
             "name": "[concat(variables('rdshPrefix'), '0/', 'dscextension')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "rdsh-domain-join-loop"
+                "rdsh-domain-join-loop",
+                "rdsh-aadjoin-loop"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
