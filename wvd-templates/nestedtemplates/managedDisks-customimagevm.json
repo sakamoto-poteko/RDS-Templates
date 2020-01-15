@@ -125,6 +125,9 @@
         "storageAccountType": "[parameters('rdshVMDiskType')]",
         "availabilitySetId": {
             "id": "[if(equals(parameters('enablePersistentDesktop'),bool('False')),resourceId('Microsoft.Compute/availabilitySets/', concat(parameters('rdshPrefix'), 'availabilitySet')),json('null'))]"
+        },
+        "identityType" : {
+            "type": "SystemAssigned"
         }
     },
     "resources": [
@@ -199,9 +202,7 @@
                 },
                 "licenseType": "Windows_Client"
             },
-            "identity": {
-                "type": "[if(equals(parameters('domainJoinType'), 'AzureAD'), 'systemAssigned', json('null'))]"
-            }
+            "identity": "[if(equals(parameters('domainJoinType'), 'AzureAD'), variables('identityType'), json('null'))]"
         }
     ],
     "outputs": {}
