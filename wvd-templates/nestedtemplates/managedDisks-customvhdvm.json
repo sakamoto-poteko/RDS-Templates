@@ -216,7 +216,7 @@
                 },
                 "licenseType": "Windows_Client"
             },
-            "identity": "[if(equals(parameters('domainJoinType'), 'AzureAD', 'systemAssigned'), json('null'))]"
+            "identity": "[if(equals(parameters('domainJoinType'), 'AzureAD'), 'systemAssigned', json('null'))]"
         }
     ],
     "outputs": {}
