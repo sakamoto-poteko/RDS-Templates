@@ -121,6 +121,16 @@
             },
             "defaultValue": ""
         },
+        "domainJoinType": {
+            "type": "string",
+            "allowedValues": [
+                "azureADJoin",
+                "domainJoin"
+            ],
+            "metadata": {
+                "description": "Specify whether you want to join your VM to a Windows Server Active Directory (domainJoin) or Azure Active Directory (azureADJoin)."
+            }
+        },
         "domainToJoin": {
             "type": "string",
             "metadata": {
@@ -553,6 +563,30 @@
             }
         },
         {
+            "condition": "[equals(parameters('domainJoinType'), 'azureADJoin')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-10-01",
+            "name": "[concat(variables('rdshPrefix'), copyindex(),'/joinAzureADAndMDMEnroll')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex())]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory.edp",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "0.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "mdmid": "0000000a-0000-0000-c000-000000000000"
+                }
+            },
+            "copy": {
+                "name": "aad-domain-join-loop",
+                "count": "[parameters('rdshNumberOfInstances')]"
+            }
+        },
+        {
+            "condition": "[equals(parameters('domainJoinType'), 'domainJoin')]",
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('rdshPrefix'), copyindex(), '/joindomain')]",
@@ -587,7 +621,8 @@
             "name": "[concat(variables('rdshPrefix'), '0/dscextension')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joindomain')]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/azureADJoinAndMDMEnrolmment')]"
             ],
             "copy": {
                 "name": "first-rdsh-dsc",
@@ -637,7 +672,7 @@
                 "comments": "The following dependencies must be defined (even if conditionally deployed) in this template"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/joindomain')]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/azureADJoinAndMDMEnrolmment')]",
                 "first-rdsh-dsc"
             ],
             "copy": {
