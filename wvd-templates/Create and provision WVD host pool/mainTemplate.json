@@ -622,7 +622,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joindomain')]",
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/azureADJoinAndMDMEnrolmment')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joinAzureADAndMDMEnroll')]"
             ],
             "copy": {
                 "name": "first-rdsh-dsc",
@@ -672,7 +672,7 @@
                 "comments": "The following dependencies must be defined (even if conditionally deployed) in this template"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/azureADJoinAndMDMEnrolmment')]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/joinAzureADAndMDMEnroll')]",
                 "first-rdsh-dsc"
             ],
             "copy": {
