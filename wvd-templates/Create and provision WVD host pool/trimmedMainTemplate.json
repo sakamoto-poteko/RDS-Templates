@@ -21,38 +21,10 @@
             "metadata": {
                 "description": "Select the image source for the session host vms. VMs from a Gallery image will be created with Managed Disks."
             },
-            "defaultValue": "Gallery",
+            "defaultValue": "CustomImage",
             "allowedValues": [
-                "CustomVHD",
-                "CustomImage",
-                "Gallery"
+                "CustomImage"
             ]
-        },
-        "vmImageVhdUri": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required when rdshImageSource = CustomVHD) URI of the sysprepped image vhd file to be used to create the session host VMs. For example, https://rdsstorage.blob.core.windows.net/vhds/sessionhostimage.vhd"
-            },
-            "defaultValue": ""
-        },
-        "rdshGalleryImageSKU": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required when rdshImageSource = Gallery) Gallery image SKU. Values without a numeric suffix, such as 1903, will use the latest release available in this template."
-            },
-            "allowedValues": [
-               "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus",
-                "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus-1909",
-                "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus-1903",
-                "Windows-10-Enterprise-multi-session",
-                "Windows-10-Enterprise-multi-session-1909",
-                "Windows-10-Enterprise-multi-session-1903",
-                "Windows-10-Enterprise-Latest",
-                "Windows-10-Enterprise-1909",
-                "Windows-10-Enterprise-1903",
-                "2016-Datacenter"
-            ],
-            "defaultValue": "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus"
         },
         "rdshCustomImageSourceName": {
             "type": "string",
@@ -114,46 +86,25 @@
                 "description": "Warning: Parameter 'rdshUseManagedDisks' will not be allowed to be false, starting March 1st, 2020. True indicating you would like to use managed disks or false indicating you would like to use unmanaged disks."
             }
         },
-        "storageAccountResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "Warning: Parameter 'rdshUseManagedDisks' will not be allowed to be false, starting March 1st, 2020. (Required when rdshUseManagedDisks = False) The resource group containing the storage account of the image vhd file."
-            },
-            "defaultValue": ""
-        },
         "domainJoinType": {
             "type": "string",
             "allowedValues": [
-                "azureADJoin",
-                "domainJoin"
+                "azureADJoin"
             ],
             "metadata": {
                 "description": "Specify whether you want to join your VM to a Windows Server Active Directory (domainJoin) or Azure Active Directory (azureADJoin)."
             }
         },
-        "domainToJoin": {
-            "type": "string",
-            "metadata": {
-                "description": "FQDN of the AD Domain to which session host VMs are going to be joined. For example, 'contoso.com'."
-            }
-        },
-        "existingDomainUPN": {
+        "localAdminUsername": {
             "type": "string",
             "metadata": {
                 "description": "A username in the domain that has privileges to join the session hosts to the domain. For example, 'user1@contoso.com'."
             }
         },
-        "existingDomainPassword": {
+        "localAdminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "The password that corresponds to the existing domain username."
-            }
-        },
-        "ouPath": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "(Optional) Specifiy an organizational unit (OU) to place the new virtual machines when joining the domain. If you do not have a specific OU to place the virtual machines, leave it blank. Example OU: 'OU=testOU;DC=domain;DC=Domain;DC=com'"
             }
         },
         "existingVnetName": {
@@ -184,16 +135,6 @@
                 "description": "The resource group containing the existing virtual network."
             }
         },
-        "serviceMetadataLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "Windows Virtual Desktop stores information that is global in nature. Select the location you would like the service metadata to be stored. See https://aka.ms/wvdgeo for more information."
-            },
-            "allowedValues": [
-                "United-States"
-            ],
-            "defaultValue": "United-States"
-        },
         "enablePersistentDesktop": {
             "type": "bool",
             "metadata": {
@@ -211,88 +152,13 @@
     },
     "variables": {
         "rdshPrefix": "[concat(parameters('rdshNamePrefix'), '-')]",
-        "existingDomainUsername": "[first(split(parameters('existingDomainUPN'), '@'))]",
         "subnet-id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]",
-        "rdshVmNamesOutput": {
-            "copy": [
-                {
-                    "name": "rdshVmNamesCopy",
-                    "count": "[parameters('rdshNumberOfInstances')]",
-                    "input": {
-                        "name": "[concat(variables('rdshPrefix'), copyIndex('rdshVmNamesCopy'))]"
-                    }
-                }
-            ]
-        },
         "RDPSModSource": "attached",
-        "galleryImage": {
-            "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "office-365",
-                "sku": "19h2-evd-o365pp",
-                "version": "latest"
-            },
-             "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus-1909": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "office-365",
-                "sku": "19h2-evd-o365pp",
-                "version": "latest"
-            },
-             "Windows-10-Enterprise-multi-session-with-Office-365-ProPlus-1903": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "office-365",
-                "sku": "1903-evd-o365pp",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-multi-session": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h2-evd",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-multi-session-1909": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h2-evd",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-multi-session-1903": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h1-evd",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-Latest": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h2-ent",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-1909": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h2-ent",
-                "version": "latest"
-            },
-            "Windows-10-Enterprise-1903": {
-                "publisher": "MicrosoftWindowsDesktop",
-                "offer": "Windows-10",
-                "sku": "19h1-ent",
-                "version": "latest"
-            },
-            "2016-Datacenter": {
-                "publisher": "MicrosoftwindowsServer",
-                "offer": "WindowsServer",
-                "sku": "2016-Datacenter",
-                "version": "latest"
-            }
-        },
         "imageName": "[concat(variables('rdshPrefix'), 'image')]",
         "VMImageReference": {
             "customimage": {
                 "id": "[resourceId(parameters('rdshCustomImageSourceResourceGroup'), 'Microsoft.Compute/images', parameters('rdshCustomImageSourceName'))]"
-            },
-            "gallery": "[variables('galleryimage')[parameters('rdshGalleryImageSKU')]]"
+            }
         },
         "rdshImageSourceLower": "[toLower(parameters('rdshImageSource'))]",
         "rdshManagedDisks": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), parameters('rdshUseManagedDisks'), bool('true'))]",
@@ -422,8 +288,8 @@
                 "availabilitySet": "[if(not(parameters('enablePersistentDesktop')), main.getAvailabilitySet(variables('rdshPrefix')), json('null'))]",
                 "osProfile": {
                     "computerName": "[concat(variables('rdshPrefix'), copyindex())]",
-                    "adminUsername": "[variables('existingDomainUsername')]",
-                    "adminPassword": "[parameters('existingDomainPassword')]"
+                    "adminUsername": "[parameters('localAdminUsername')]",
+                    "adminPassword": "[parameters('localAdminPassword')]"
                 },
                 "storageProfile": {
                     "imageReference": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), main.getVMImageReferenceCustomVHD(variables('imageName')), variables('VMImageReference')[variables('rdshImageSourceLower')])]",
@@ -431,61 +297,6 @@
                         "createOption": "FromImage",
                         "managedDisk": {
                             "storageAccountType": "[parameters('rdshVMDiskType')]"
-                        }
-                    }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rdshPrefix'), copyindex(), '-nic'))]"
-                        }
-                    ]
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": false
-                    }
-                },
-                "licenseType": "Windows_Client"
-            }
-        },
-        {
-            "condition": "[not(variables('rdshManagedDisks'))]",
-            "apiVersion": "2018-10-01",
-            "type": "Microsoft.Compute/virtualMachines",
-            "name": "[concat(if(variables('rdshManagedDisks'), 'null', ''), variables('rdshPrefix'), copyindex())]",
-            "location": "[parameters('location')]",
-            "copy": {
-                "name": "rdsh-vm-loop-unmanaged",
-                "count": "[parameters('rdshNumberOfInstances')]"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('rdshPrefix'), copyindex(), '-nic')]"
-            ],
-            "identity": {
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('rdshVmSize')]"
-                },
-                "availabilitySet": "[if(not(parameters('enablePersistentDesktop')), main.getAvailabilitySet(variables('rdshPrefix')), json('null'))]",
-                "osProfile": {
-                    "computerName": "[concat(variables('rdshPrefix'), copyindex())]",
-                    "adminUsername": "[variables('existingDomainUsername')]",
-                    "adminPassword": "[parameters('existingDomainPassword')]"
-                },
-                "storageProfile": {
-                    "osDisk": {
-                        "name": "[concat(variables('rdshPrefix'), copyindex(), '-osDisk')]",
-                        "osType": "Windows",
-                        "caching": "ReadWrite",
-                        "createOption": "FromImage",
-                        "image": {
-                            "uri": "[parameters('VmImageVhdUri')]"
-                        },
-                        "vhd": {
-                            "uri": "[if(variables('rdshManagedDisks'), json('null'), concat(reference(variables('storageaccount'), '2018-11-01').primaryEndpoints.blob, 'vhds/', variables('rdshPrefix'), copyindex(), '-osdisk.vhd'))]"
                         }
                     }
                 },
@@ -516,7 +327,7 @@
             "properties": {
                 "publisher": "Microsoft.Azure.ActiveDirectory.edp",
                 "type": "AADLoginForWindows",
-                "typeHandlerVersion": "1.0.0.0",
+                "typeHandlerVersion": "1.0",
                 "settings": {
                     "mdmId": "0000000a-0000-0000-c000-000000000000"
                 }
@@ -524,36 +335,6 @@
             "copy": {
                 "name": "aad-domain-join-loop",
                 "count": "[parameters('rdshNumberOfInstances')]"
-            }
-        },
-        {
-            "condition": "[equals(parameters('domainJoinType'), 'domainJoin')]",
-            "apiVersion": "2018-10-01",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), copyindex(), '/joindomain')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex())]"
-            ],
-            "copy": {
-                "name": "rdsh-domain-join-loop",
-                "count": "[parameters('rdshNumberOfInstances')]"
-            },
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "JsonADDomainExtension",
-                "typeHandlerVersion": "1.3",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "name": "[parameters('domainToJoin')]",
-                    "ouPath": "[parameters('ouPath')]",
-                    "user": "[parameters('existingDomainUPN')]",
-                    "restart": "true",
-                    "options": "3"
-                },
-                "protectedSettings": {
-                    "password": "[parameters('existingDomainPassword')]"
-                }
             }
         }
     ],
