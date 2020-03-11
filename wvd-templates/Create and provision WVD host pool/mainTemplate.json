@@ -476,6 +476,9 @@
                 "[concat('Microsoft.Compute/images/', variables('imageName'))]",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('rdshPrefix'), copyindex(), '-nic')]"
             ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "[parameters('rdshVmSize')]"
@@ -523,6 +526,9 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('rdshPrefix'), copyindex(), '-nic')]"
             ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "[parameters('rdshVmSize')]"
