@@ -580,10 +580,8 @@
             "properties": {
                 "publisher": "Microsoft.Azure.ActiveDirectory.edp",
                 "type": "AADLoginForWindows",
-                "typeHandlerVersion": "0.3",
-                "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "mdmid": "0000000a-0000-0000-c000-000000000000"
+                    "mdmId": "0000000a-0000-0000-c000-000000000000"
                 }
             },
             "copy": {
