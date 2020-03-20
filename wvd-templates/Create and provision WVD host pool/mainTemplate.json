@@ -578,7 +578,7 @@
                 "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex())]"
             ],
             "properties": {
-                "publisher": "Microsoft.Azure.ActiveDirectory.edp",
+                "publisher": "Microsoft.Azure.ActiveDirectory",
                 "type": "AADLoginForWindows",
                 "typeHandlerVersion": "1.0.0.0",
                 "settings": {
