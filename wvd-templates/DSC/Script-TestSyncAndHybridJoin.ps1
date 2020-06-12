@@ -27,7 +27,7 @@ $script = {
     $syncInterval = $scheduler.AllowedSyncCycleInterval
     return (New-TimeSpan -Start (Get-Date) -End $nextSync) -le $syncInterval -and $scheduler.SyncCycleEnabled
 }
-$result = Invoke-Command -Session $remoteSession -ScriptBlock $script
+Invoke-Command -Session $remoteSession -ScriptBlock $script
 
 Write-Log -Message "Azure AD Connect Sync checked. Last run was within the sync interval."
 
