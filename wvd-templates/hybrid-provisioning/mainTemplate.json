@@ -28,7 +28,7 @@
             "metadata": {
                 "description": "For internal use only, do not set a value for this parameter"
             },
-            "defaultValue": false
+            "defaultValue": true
         },
         "rdshImageSource": {
             "type": "string",
@@ -572,7 +572,7 @@
             "name": "[concat(variables('rdshPrefix'), copyindex(),'/firstHybridJoinAttempt')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '/extensions/joindomain')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(), '/extensions/joindomain')]"
             ],
             "copy": {
                 "name": "rdsh-first-hybrid-join-attempt-loop",
@@ -597,6 +597,10 @@
             "dependsOn": [
                 "rdsh-first-hybrid-join-attempt-loop"
             ],
+            "copy": {
+                "name": "aad-connect-sync",
+                "count": 1
+            },
             "properties": {
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
@@ -627,12 +631,11 @@
             "name": "[concat(variables('rdshPrefix'), copyindex(1), '/hybridJoin')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat(variables('rdshPrefix'), '0/runAadConnectSyncAndHybridJoin')]"
+                "aad-connect-sync"
             ],
             "copy": {
                 "name": "rdsh-final-hybrid-join-attempt-loop",
                 "count": "[if(greater(parameters('rdshNumberOfInstances'), 1), sub(parameters('rdshNumberOfInstances'), 1), 1)]"
-
             },
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -646,7 +649,7 @@
             }
         },
         {
-            "condition": "[not(parameters('disableWVDObjects'))]",
+            "condition": "[not(parameters('_disableWvdObjects'))]",
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('rdshPrefix'), '0/dscextension')]",
@@ -694,7 +697,7 @@
             }
         },
         {
-            "condition": "[and(not(parameters('disableWVDObjects')), greater(parameters('rdshNumberOfInstances'), 1))]",
+            "condition": "[and(not(parameters('_disableWvdObjects')), greater(parameters('rdshNumberOfInstances'), 1))]",
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('rdshPrefix'), copyindex(1), '/dscextension')]",
