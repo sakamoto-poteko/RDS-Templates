@@ -621,13 +621,19 @@
             }
         },
         {
+            "condition": "[greater(parameters('rdshNumberOfInstances'), 1)]",
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), copyindex(), 'hybridJoin')]",
+            "name": "[concat(variables('rdshPrefix'), copyindex(1), '/hybridJoin')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat(variables('rdshPrefix'), '0/runAadConnectSyncAndHybridJoin')]"
             ],
+            "copy": {
+                "name": "rdsh-final-hybrid-join-attempt-loop",
+                "count": "[if(greater(parameters('rdshNumberOfInstances'), 1), sub(parameters('rdshNumberOfInstances'), 1), 1)]"
+
+            },
             "properties": {
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
