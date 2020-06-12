@@ -33,7 +33,7 @@ $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName
 
 $script = {
     Import-Module AdSync -Force
-    
+
     return Start-AdSyncSyncCycle -PolicyType Delta
 }
 
@@ -41,5 +41,3 @@ Invoke-Command -Session $remoteSession -ScriptBlock $script
 dsregcmd /join
 
 Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join."
-
-return true
