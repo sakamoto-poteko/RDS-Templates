@@ -16,7 +16,7 @@ param(
     [pscredential]$TenantAdminCredentials,
 
     [Parameter(mandatory = $true)]
-    [string]$fullAadSyncServerName
+    [string]$FullAadSyncServerName
 )
 
 $ScriptPath = [System.IO.Path]::GetDirectoryName($PSCommandPath)
@@ -29,7 +29,7 @@ $ErrorActionPreference = "Stop"
 
 Write-Log -Message 'Script being executed: Attempting to run Azure AD Connect sync'
 
-$remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $fullAadSyncServerName
+$remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $FullAadSyncServerName
 
 Enter-PSSession -Session $remoteSession
     Import-Module AdSync -Force
@@ -41,4 +41,4 @@ $output = dsregcmd /join
 
 Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join with result: $output"
 
-return 0
+return true
