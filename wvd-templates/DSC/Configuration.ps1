@@ -399,7 +399,7 @@ configuration SyncAndHybridJoin
                 . (Join-Path $using:ScriptPath "Functions.ps1")
             
                 try {
-                    return (& "$using:ScriptPath\Script-RunAadConnectSync.ps1" -TenantAdminCredentials $using:TenantAdminCredentials -fullAadSyncServerName $using:fullAadSyncServerName)
+                    return (& "$using:ScriptPath\Script-SyncAndHybridJoin.ps1" -TenantAdminCredentials $using:TenantAdminCredentials -fullAadSyncServerName $using:fullAadSyncServerName)
                 }
                 catch {
                     $ErrMsg = $PSItem | Format-List -Force | Out-String
@@ -411,7 +411,7 @@ configuration SyncAndHybridJoin
                 . (Join-Path $using:ScriptPath "Functions.ps1")
 
                 try {
-                    return (& "$using:ScriptPath\Script-TestRunAadConnectSync.ps1")
+                    return (& "$using:ScriptPath\Script-TestSyncAndHybridJoin.ps1")
                 }
                 catch {
                     $ErrMsg = $PSItem | Format-List -Force | Out-String
