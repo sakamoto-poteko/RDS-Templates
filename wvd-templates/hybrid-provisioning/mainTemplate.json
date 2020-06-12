@@ -386,7 +386,8 @@
         },
         "rdshImageSourceLower": "[toLower(parameters('rdshImageSource'))]",
         "rdshManagedDisks": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), parameters('rdshUseManagedDisks'), bool('true'))]",
-        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]"
+        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]",
+        "hybridAadJoinScriptUri": "https://raw.githubusercontent.com/ChristianMontoya/RDS-Templates/hybrid/wvd-templates/DSC/Script-HybridJoin.ps1"
     },
     "functions": [
         {
@@ -585,7 +586,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[uri(parameters('_artifactsLocation'), concat('DSC/hybridAadJoinScript.ps1, parameters('_artifactsLocationSasToken')))]"
+                        "[variables('hybridAadJoinScriptUri')]"
                     ],
                     "commandToExecute": "powershell.exe hybridAadJoinScript.ps1"
               }
