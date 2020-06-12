@@ -369,6 +369,134 @@ configuration RegisterSessionHostAndCleanup
     }
 }
 
+configuration RunAadConnectSyncAndHybridJoin
+{
+    param (
+        [Parameter(mandatory = $true)]
+        [PSCredential]$TenantAdminCredentials,
+        
+        [Parameter(mandatory = $true)]
+        [string]$fullAadSyncServerName
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    $ScriptPath = [system.io.path]::GetDirectoryName($PSCommandPath)
+    . (Join-Path $ScriptPath "Functions.ps1")
+
+    Node localhost
+    {
+        LocalConfigurationManager {
+            RebootNodeIfNeeded = $true
+            ConfigurationMode  = "ApplyOnly"
+        }
+        
+        Script RunAadConnectSync {
+            GetScript = {
+                return @{'Result' = '' }
+            }
+            SetScript = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+            
+                try {
+                    return (& "$using:ScriptPath\Script-RunAadConnectSync.ps1" -TenantAdminCredentials $using:TenantAdminCredentials -fullAadSyncServerName $using:fullAadSyncServerName)
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to run the Azure AD Connect sync: $ErrMsg", $PSItem.Exception)
+                }
+            }
+            TestScript = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+
+                try {
+                    return (& "$using:ScriptPath\Script-TestRunAadConnectSync.ps1")
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to check the run status of Azure AD Connect sync: $ErrMsg", $PSItem.Exception)
+                }
+            }
+        }
+
+        Script HybridJoin {
+            GetScript  = {
+                return @{'Result' = '' }
+            }
+            SetScript  = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+
+                try {
+                    return (& "$using:ScriptPath\Script-HybridJoin.ps1")
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to perform Hybrid Azure AD join: $ErrMsg", $PSItem.Exception)
+                }
+            }
+            TestScript = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+
+                try {
+                    return (& "$using:ScriptPath\Script-TestHybridJoin.ps1")
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to check Hybrid Azure AD join state: $ErrMsg", $PSItem.Exception)
+                }
+            }
+        }
+    }
+}
+
+configuration HybridJoin
+{
+    $ScriptPath = [system.io.path]::GetDirectoryName($PSCommandPath)
+    . (Join-Path $ScriptPath "Functions.ps1")
+
+    Node localhost
+    {
+        LocalConfigurationManager {
+            RebootNodeIfNeeded = $true
+            ConfigurationMode  = "ApplyOnly"
+        }
+
+        Script HybridJoin {
+            GetScript  = {
+                return @{'Result' = '' }
+            }
+            SetScript  = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+
+                try {
+                    return (& "$using:ScriptPath\Script-HybridJoin.ps1")
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to perform Hybrid Azure AD Join: $ErrMsg", $PSItem.Exception)
+                }
+            }
+            TestScript = {
+                . (Join-Path $using:ScriptPath "Functions.ps1")
+
+                try {
+                    return (& "$using:ScriptPath\Script-TestHybridJoin.ps1")
+                }
+                catch {
+                    $ErrMsg = $PSItem | Format-List -Force | Out-String
+                    Write-Log -Err $ErrMsg
+                    throw [System.Exception]::new("Some error occurred when attempting to check Hybrid Azure AD Join state: $ErrMsg", $PSItem.Exception)
+                }
+            }
+        }
+    }
+}
+
 # Note: Do not use this in new code, it is here for backwards compatibility and may be removed soon.
 configuration FirstSessionHost
 {

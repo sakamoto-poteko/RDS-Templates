@@ -567,6 +567,7 @@
             }
         },
         {
+            "apiVersion": "2018-06-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('rdshPrefix'), copyindex(),'/firstHybridJoinAttempt')]",
             "location": "[parameters('location')]",
@@ -591,7 +592,7 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), '0/syncAadConnectAndHybridJoin')]",
+            "name": "[concat(variables('rdshPrefix'), '0/runAadConnectSyncAndHybridJoin')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "rdsh-first-hybrid-join-attempt-loop"
@@ -603,7 +604,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/Configuration.zip', parameters('_artifactsLocationSasToken')))]",
-                    "configurationFunction": "Configuration.ps1\\SyncAadConnectAndHybridJoin",
+                    "configurationFunction": "Configuration.ps1\\RunAadConnectSyncAndHybridJoin",
                     "properties": {
                         "TenantAdminCredentials": {
                             "userName": "[parameters('tenantAdminUpnOrApplicationId')]",
@@ -625,7 +626,7 @@
             "name": "[concat(variables('rdshPrefix'), copyindex(), 'hybridJoin')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat(variables('rdshPrefix'), '0/syncAadConnectAndHybridJoin')]"
+                "[concat(variables('rdshPrefix'), '0/runAadConnectSyncAndHybridJoin')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -634,7 +635,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/Configuration.zip', parameters('_artifactsLocationSasToken')))]",
-                    "configurationFunction": "Configuration.ps1\\HybridJoin",
+                    "configurationFunction": "Configuration.ps1\\HybridJoin"
                 }
             }
         },
