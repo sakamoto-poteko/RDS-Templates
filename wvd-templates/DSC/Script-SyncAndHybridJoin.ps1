@@ -31,14 +31,15 @@ Write-Log -Message 'Script being executed: Attempting to run Azure AD Connect sy
 
 $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $FullAadSyncServerName
 
-Enter-PSSession -Session $remoteSession
+$script = {
     Import-Module AdSync -Force
-    $syncStart = Start-AdSyncSyncCylce -PolicyType Delta
-    Exit-PSSession
-Remove-PSSession $remoteSession
+    
+    return Start-AdSyncSyncCycle -PolicyType Delta
+}
 
-$output = dsregcmd /join
+Invoke-Command -Session $remoteSession -ScriptBlock $script
+dsregcmd /join
 
-Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join with result: $output"
+Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join."
 
 return true
