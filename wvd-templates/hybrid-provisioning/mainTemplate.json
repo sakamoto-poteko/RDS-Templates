@@ -7,7 +7,7 @@
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located."
             },
-            "defaultValue": "https://raw.githubusercontent.com/ChristianMontoya/RDS-Templates/master/wvd-templates/"
+            "defaultValue": "https://raw.githubusercontent.com/ChristianMontoya/RDS-Templates/hybrid/wvd-templates/"
         },
         "_createPidResource": {
             "type": "bool",
