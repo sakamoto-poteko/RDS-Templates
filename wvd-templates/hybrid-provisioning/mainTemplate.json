@@ -386,8 +386,7 @@
         },
         "rdshImageSourceLower": "[toLower(parameters('rdshImageSource'))]",
         "rdshManagedDisks": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), parameters('rdshUseManagedDisks'), bool('true'))]",
-        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]",
-        "hybridAadJoinScriptUri": "https://raw.githubusercontent.com/ChristianMontoya/RDS-Templates/hybrid/wvd-templates/DSC/Script-HybridJoin.ps1"
+        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]"
     },
     "functions": [
         {
@@ -585,10 +584,8 @@
                 "typeHandlerVersion": "1.8",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "fileUris": [
-                        "[variables('hybridAadJoinScriptUri')]"
-                    ],
-                    "commandToExecute": "powershell.exe hybridAadJoinScript.ps1"
+                    "fileUris": [],
+                    "commandToExecute": "Invoke-Command {$value = dsregcmd /join; if ($value -like '*Error*') { return 1 } else { return 0 }}"
               }
             }
         },
