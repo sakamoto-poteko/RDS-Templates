@@ -18,18 +18,17 @@ write-log -message 'Script being executed: Attempting to run Azure AD Connect sy
 
 $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName <AADConnectSyncMachineName>
 
-$result = null
+$script = {
+    Import-Module AdSync
+    Import-Module -Name "C:\Program Files\Microsoft Azure Active Directory Connect\Tools\AdSyncTools"
 
-Enter-PSSession $remoteSession
+    $lastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -First 1
+    $secondToLastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -Skip 1 -First 1
+    $timeDifferenceBetweenRuns = New-TimeSpan -Start $secondToLastRun -End $lastRun 
+    $syncInterval = (Get-ADSyncScheduler).CurrentlyEffectiveSyncCycleInterval
+    return ( $timeDifferenceBetweenRuns -le $syncInterval)
+}
 
-Import-Module AdSync
-Import-module -Name "C:\Program Files\Microsoft Azure Active Directory Connect\Tools\AdSyncTools"
+$result = Invoke-Command -Session $remoteSession -ScriptBlock $script
 
-$lastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Export") -and ($_.ConnectorName -like "*onmicrosoft.com*" )} | Select-Object -First 1
-$secondToLastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Export") -and ($_.ConnectorName -like "*onmicrosoft.com*" )} | Select-Object -skip 1 -First 1
-# or DeltaImport
-$currentTimeSpan = New-TimeSpan -Start $lastRunTime -End $currentTime 
-$syncInterval = (Get-ADSyncScheduler).CurrentlyEffectiveSyncCycleInterval
-
-Exit-PSSession
-Remove-PSSession $remoteSession
+return $result
