@@ -19,8 +19,8 @@ write-log -message 'Script being executed: Attempting to run Azure AD Connect sy
 $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $fullAadSyncServerName
 
 $script = {
-    Import-Module AdSync
-    Import-Module -Name "C:\Program Files\Microsoft Azure Active Directory Connect\Tools\AdSyncTools"
+    Import-Module AdSync -Force
+    Import-Module -Name "C:\Program Files\Microsoft Azure Active Directory Connect\Tools\AdSyncTools" -Force
 
     $lastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -First 1
     $secondToLastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -Skip 1 -First 1
