@@ -584,8 +584,10 @@
                 "typeHandlerVersion": "1.8",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "commandToExecute": "dsregcmd /join",
-                    "fileUris": []
+                    "fileUris": [
+                        "[uri(parameters('_artifactsLocation'), concat('DSC/hybridAadJoinScript.ps1, parameters('_artifactsLocationSasToken')))]"
+                    ],
+                    "commandToExecute": "powershell.exe hybridAadJoinScript.ps1"
               }
             }
         },
