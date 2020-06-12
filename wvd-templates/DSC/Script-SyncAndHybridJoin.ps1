@@ -33,11 +33,20 @@ $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName
 
 $script = {
     Import-Module AdSync -Force
-
-    return Start-AdSyncSyncCycle -PolicyType Delta
+    
+    $scheduler = Get-AdSyncScheduler
+    if (-not($scheduler.SyncCycleInProgress)) {
+        return Start-AdSyncSyncCycle -PolicyType Delta
+    }  else {
+        return false
+    }
 }
 
-Invoke-Command -Session $remoteSession -ScriptBlock $script
-dsregcmd /join
-
-Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join."
+$triggeredSync = Invoke-Command -Session $remoteSession -ScriptBlock $script
+if ($triggeredSync) {
+    dsregcmd /join
+    Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join."
+}
+else {
+    Write-Log -Message "Did not trigger Azure AD Connect sync or Hybrid Azure AD Join since there is a sync already in progress."
+}
