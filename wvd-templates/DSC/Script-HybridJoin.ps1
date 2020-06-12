@@ -21,8 +21,8 @@ $ScriptPath = [System.IO.Path]::GetDirectoryName($PSCommandPath)
 # Setting ErrorActionPreference to stop script execution when error occurs
 $ErrorActionPreference = "Stop"
 
-write-log -message 'Script being executed: Attempting to perform Hybrid Azure AD Join'
+Write-Log -message 'Script being executed: Attempting to perform Hybrid Azure AD Join'
 
 $output = dsregcmd /join
 
-Write-Log -Message "$output"
+Write-Log -Message "Attempt at Hybrid Azure AD Join operation: $output"

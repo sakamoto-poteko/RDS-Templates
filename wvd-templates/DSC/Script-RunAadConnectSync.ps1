@@ -27,7 +27,7 @@ $ScriptPath = [System.IO.Path]::GetDirectoryName($PSCommandPath)
 # Setting ErrorActionPreference to stop script execution when error occurs
 $ErrorActionPreference = "Stop"
 
-write-log -message 'Script being executed: Attempting to run Azure AD Connect sync'
+Write-Log -Message 'Script being executed: Attempting to run Azure AD Connect sync'
 
 $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $fullAadSyncServerName
 
@@ -38,5 +38,7 @@ $script = {
 }
 
 $result = Invoke-Command -Session $remoteSession -ScriptBlock $script
+
+Write-Log -Message "Completed Azure AD Connect synce attempt with result: $result"
 
 return $result

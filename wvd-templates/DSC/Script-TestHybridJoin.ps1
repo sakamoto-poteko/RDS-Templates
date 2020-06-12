@@ -20,10 +20,13 @@ $ScriptPath = [System.IO.Path]::GetDirectoryName($PSCommandPath)
 # Setting ErrorActionPreference to stop script execution when error occurs
 $ErrorActionPreference = "Stop"
 
-write-log -message 'Script being executed: Test if machine is hybrid Azure AD Joined'
+Write-log -Message 'Script being executed: Test if machine is hybrid Azure AD Joined'
 
 $output = dsregcmd /status
 $isAzureAdJoined = ($output | Select-String -Pattern "AzureAdJoined :") -split ' ' -contains "YES"
 $isDomainJoined = ($output | Select-String -Pattern "DomainJoined :") -split ' ' -contains "YES"
 
-return ($isAzureAdJoined -and $isDomainJoined)
+$result = ($isAzureAdJoined -and $isDomainJoined)
+
+Write-Log -Message "DomainJoined: $isDomainJoined. AzureAdJoined: $isAzureAdJoined. Hybrid Azure AD Joined: $result"
+return $result
