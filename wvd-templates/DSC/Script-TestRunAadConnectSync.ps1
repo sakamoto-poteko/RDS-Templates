@@ -16,7 +16,7 @@ $ErrorActionPreference = "Stop"
 
 write-log -message 'Script being executed: Attempting to run Azure AD Connect sync'
 
-$remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName <AADConnectSyncMachineName>
+$remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName $fullAadSyncServerName
 
 $script = {
     Import-Module AdSync

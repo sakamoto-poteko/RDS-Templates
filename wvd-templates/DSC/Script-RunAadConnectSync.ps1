@@ -31,10 +31,12 @@ write-log -message 'Script being executed: Attempting to run Azure AD Connect sy
 
 $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName <AADConnectSyncMachineName>
 
-Enter-PSSession $remoteSession
+$script = {
+    Import-Module AdSync
+    $syncStart = Start-AdSyncSyncCylce -PolicyType Delta
 
-Import-Module AdSync
-Start-AdSyncSyncCylce -PolicyType Delta
+}
 
-Exit-PSSession
-Remove-PSSession $remoteSession
+$result = Invoke-Command -Session $remoteSession -ScriptBlock $script
+
+return $result
