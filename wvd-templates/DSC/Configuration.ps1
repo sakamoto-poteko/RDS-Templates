@@ -369,7 +369,7 @@ configuration RegisterSessionHostAndCleanup
     }
 }
 
-configuration RunAadConnectSyncAndHybridJoin
+configuration SyncAndHybridJoin
 {
     param (
         [Parameter(mandatory = $true)]
@@ -391,7 +391,7 @@ configuration RunAadConnectSyncAndHybridJoin
             ConfigurationMode  = "ApplyOnly"
         }
         
-        Script RunAadConnectSync {
+        Script SyncAndHybridJoin {
             GetScript = {
                 return @{'Result' = '' }
             }
@@ -417,36 +417,6 @@ configuration RunAadConnectSyncAndHybridJoin
                     $ErrMsg = $PSItem | Format-List -Force | Out-String
                     Write-Log -Err $ErrMsg
                     throw [System.Exception]::new("Some error occurred when attempting to check the run status of Azure AD Connect sync: $ErrMsg", $PSItem.Exception)
-                }
-            }
-        }
-
-        Script HybridJoin {
-            GetScript  = {
-                return @{'Result' = '' }
-            }
-            SetScript  = {
-                . (Join-Path $using:ScriptPath "Functions.ps1")
-
-                try {
-                    return (& "$using:ScriptPath\Script-HybridJoin.ps1")
-                }
-                catch {
-                    $ErrMsg = $PSItem | Format-List -Force | Out-String
-                    Write-Log -Err $ErrMsg
-                    throw [System.Exception]::new("Some error occurred when attempting to perform Hybrid Azure AD join: $ErrMsg", $PSItem.Exception)
-                }
-            }
-            TestScript = {
-                . (Join-Path $using:ScriptPath "Functions.ps1")
-
-                try {
-                    return (& "$using:ScriptPath\Script-TestHybridJoin.ps1")
-                }
-                catch {
-                    $ErrMsg = $PSItem | Format-List -Force | Out-String
-                    Write-Log -Err $ErrMsg
-                    throw [System.Exception]::new("Some error occurred when attempting to check Hybrid Azure AD join state: $ErrMsg", $PSItem.Exception)
                 }
             }
         }

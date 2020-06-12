@@ -386,8 +386,7 @@
         },
         "rdshImageSourceLower": "[toLower(parameters('rdshImageSource'))]",
         "rdshManagedDisks": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), parameters('rdshUseManagedDisks'), bool('true'))]",
-        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]",
-        "attemptHybridAadJoinScript": "https://raw.githubusercontent.com/ChristianMontoya/RDS-Templates/hybrid/wvd-templates/DSC/attemptHybridAadJoin.ps1"
+        "createAvailabilitySet": "[and(not(parameters('enablePersistentDesktop')), parameters('createAvailabilitySet'))]"
     },
     "functions": [
         {
@@ -593,7 +592,7 @@
         {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('rdshPrefix'), '0/runAadConnectSyncAndHybridJoin')]",
+            "name": "[concat(variables('rdshPrefix'), '0/syncAndHybridJoin')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "rdsh-first-hybrid-join-attempt-loop"
@@ -609,7 +608,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "modulesUrl": "[uri(parameters('_artifactsLocation'), concat('DSC/Configuration.zip', parameters('_artifactsLocationSasToken')))]",
-                    "configurationFunction": "Configuration.ps1\\RunAadConnectSyncAndHybridJoin",
+                    "configurationFunction": "Configuration.ps1\\SyncAndHybridJoin",
                     "properties": {
                         "TenantAdminCredentials": {
                             "userName": "[parameters('tenantAdminUpnOrApplicationId')]",
