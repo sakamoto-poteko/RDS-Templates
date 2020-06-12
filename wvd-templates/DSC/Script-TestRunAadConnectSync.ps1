@@ -20,13 +20,11 @@ $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName
 
 $script = {
     Import-Module AdSync -Force
-    Import-Module -Name "C:\Program Files\Microsoft Azure Active Directory Connect\Tools\AdSyncTools" -Force
 
-    $lastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -First 1
-    $secondToLastRun = Get-ADSyncToolsRunHistory -Days 1 | Where-Object { ($_.Result -eq "Success") -and ($_.RunProfileName -eq "Delta Import") -and (-not($_.ConnectorName -like "*onmicrosoft.com*"))} | Select-Object -Skip 1 -First 1
-    $timeDifferenceBetweenRuns = New-TimeSpan -Start $secondToLastRun -End $lastRun 
-    $syncInterval = (Get-ADSyncScheduler).CurrentlyEffectiveSyncCycleInterval
-    return ( $timeDifferenceBetweenRuns -le $syncInterval)
+    $scheduler = Get-ADSyncScheduler
+    $nextSync = $scheduler.NextSyncCycleStartTimeInUTC
+    $syncInterval = $scheduler.AllowedSyncCycleInterval
+    return (New-TimeSpan -Start (Get-Date) -End $nextSync) -le $syncInterval -and $scheduler.SyncCycleEnabled
 }
 
 $result = Invoke-Command -Session $remoteSession -ScriptBlock $script
