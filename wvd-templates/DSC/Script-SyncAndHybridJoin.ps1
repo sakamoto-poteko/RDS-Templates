@@ -34,12 +34,17 @@ $remoteSession = New-PSSession -Credential $TenantAdminCredentials -ComputerName
 $script = {
     Import-Module AdSync -Force
     
-    $scheduler = Get-AdSyncScheduler
-    if (-not($scheduler.SyncCycleInProgress)) {
-        return Start-AdSyncSyncCycle -PolicyType Delta
-    }  else {
-        return false
+    while ($scheduler.SyncCycleInProgress){
+        Start-Sleep -Seconds 30
     }
+
+    $value = Start-AdSyncCycle -PolicyType Delta
+
+    while ($scheduler.SyncCycleInProgress){
+        Start-Sleep -Seconds 30
+    }
+    
+    return $value
 }
 
 $triggeredSync = Invoke-Command -Session $remoteSession -ScriptBlock $script

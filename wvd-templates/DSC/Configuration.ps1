@@ -410,7 +410,6 @@ configuration SyncAndHybridJoin
             TestScript = {
                 . (Join-Path $using:ScriptPath "Functions.ps1")
 
-                Write-Log -Message "Attempting to test sync and hybrid join"
                 try {
                     return (& "$using:ScriptPath\Script-TestSyncAndHybridJoin.ps1" -TenantAdminCredentials $using:TenantAdminCredentials -fullAadSyncServerName $using:fullAadSyncServerName)
                 }
