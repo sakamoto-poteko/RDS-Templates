@@ -489,3 +489,35 @@ function InstallRDAgents {
     Write-Log -Message "Starting service $bootloaderServiceName"
     Start-Service $bootloaderServiceName
 }
+
+<#
+.DESCRIPTION
+Returns if the machine is Hybrid Azure AD Joined.
+#>
+function IsHybridAadJoined {
+
+    $ErrorActionPreference = "Stop"
+    Write-Log -Message "Checking if machine is Hybrid Azure AD Joined"
+
+    $status = dsregcmd /status
+    $isAzureAdJoined = ($status | Select-String -Pattern "AzureAdJoined :") -split ' ' -contains "YES"
+    $isDomainJoined = ($status | Select-String -Pattern "DomainJoined :") -split ' ' -contains "YES"
+    $result = $isAzureAdJoined -and $isDomainJoined
+    
+    Write-Output -Message "Completed Hybrid Azure AD Join? $result"
+    return $result
+}
+
+<#
+.DESCRIPTION
+Performs the action to Hybrid Azure AD Join.
+#>
+function PerformHybridAadJoin {
+    
+    $ErrorActionPreference = "Stop"
+    Write-Log -Message "Attempting Hybrid Azure AD Join"
+    
+    dsregcmd /join
+    
+    Write-Output -Message "Attempted Hybrid Azure AD Join"
+}

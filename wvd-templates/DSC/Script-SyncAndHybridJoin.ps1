@@ -43,15 +43,10 @@ $script = {
     while ($scheduler.SyncCycleInProgress){
         Start-Sleep -Seconds 30
     }
-    
-    return $value
 }
 
-$triggeredSync = Invoke-Command -Session $remoteSession -ScriptBlock $script
-if ($triggeredSync) {
-    dsregcmd /join
-    Write-Log -Message "Completed Azure AD Connect synce attempt with result and attempted Hybrid Azure AD Join."
-}
-else {
-    Write-Log -Message "Did not trigger Azure AD Connect sync or Hybrid Azure AD Join since there is a sync already in progress."
+Invoke-Command -Session $remoteSession -ScriptBlock $script
+
+while ( -not(isHybridAadJoined)) {
+    PerformHybridAadJoin
 }

@@ -17,12 +17,4 @@ $ErrorActionPreference = "Stop"
 
 Write-Log -Message 'Script being executed: Attempting to see if device is already Hybrid Azure AD Joined.'
 
-$output = dsregcmd /status
-$isAzureAdJoined = ($output | Select-String -Pattern "AzureAdJoined :") -split ' ' -contains "YES"
-$isDomainJoined = ($output | Select-String -Pattern "DomainJoined :") -split ' ' -contains "YES"
-
-$result = ($isAzureAdJoined -and $isDomainJoined)
-
-Write-Log -Message "DomainJoined: $isDomainJoined. AzureAdJoined: $isAzureAdJoined. Hybrid Azure AD Joined: $result."
-
-return $result
+return IsHybridAadJoined
