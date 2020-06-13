@@ -497,14 +497,14 @@ Returns if the machine is Hybrid Azure AD Joined.
 function IsHybridAadJoined {
 
     $ErrorActionPreference = "Stop"
-    Write-Log -Message "Checking if machine is Hybrid Azure AD Joined"
+    Write-Log -Message "[IsHybridAadJoined Function] Checking if machine is Hybrid Azure AD Joined"
 
     $status = dsregcmd /status
     $isAzureAdJoined = ($status | Select-String -Pattern "AzureAdJoined :") -split ' ' -contains "YES"
     $isDomainJoined = ($status | Select-String -Pattern "DomainJoined :") -split ' ' -contains "YES"
     $result = $isAzureAdJoined -and $isDomainJoined
     
-    Write-Output -Message "Completed Hybrid Azure AD Join? $result"
+    Write-Log -Message "[IsHybridAadJoined Function] Completed Hybrid Azure AD Join? $result"
     return $result
 }
 
@@ -515,9 +515,9 @@ Performs the action to Hybrid Azure AD Join.
 function PerformHybridAadJoin {
     
     $ErrorActionPreference = "Stop"
-    Write-Log -Message "Attempting Hybrid Azure AD Join"
+    Write-Log -Message "[PerformHybridAadJoin Function] Attempting Hybrid Azure AD Join"
     
     dsregcmd /join
     
-    Write-Output -Message "Attempted Hybrid Azure AD Join"
+    Write-Log -Message "[PerformHybridAadJoin Function] Attempted Hybrid Azure AD Join"
 }

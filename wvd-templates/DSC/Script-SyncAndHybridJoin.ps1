@@ -41,12 +41,14 @@ $script = {
     $value = Start-AdSyncSyncCycle -PolicyType Delta
 
     while ($scheduler.SyncCycleInProgress){
-        Start-Sleep -Seconds 30
+        Start-Sleep -Seconds 90
     }
 }
 
 Invoke-Command -Session $remoteSession -ScriptBlock $script
 
 while ( -not(isHybridAadJoined)) {
+    Write-Log -Message "[SyncAndHybridJoin] Not Hybrid Azure AD Joined. Calling PerformHybridAadJoin to perform the Hybrid Azure AD Join."
     PerformHybridAadJoin
+    Start-Sleep -Seconds 20
 }
