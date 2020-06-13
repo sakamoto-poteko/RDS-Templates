@@ -38,7 +38,7 @@ $script = {
         Start-Sleep -Seconds 30
     }
 
-    $value = Start-AdSyncCycle -PolicyType Delta
+    $value = Start-AdSyncSyncCycle -PolicyType Delta
 
     while ($scheduler.SyncCycleInProgress){
         Start-Sleep -Seconds 30
