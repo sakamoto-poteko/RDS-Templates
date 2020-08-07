@@ -52,3 +52,6 @@ while ( -not(isHybridAadJoined)) {
     PerformHybridAadJoin
     Start-Sleep -Seconds 20
 }
+
+# Run the auto-enroll command for MDM
+cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM

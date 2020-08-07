@@ -11,8 +11,6 @@ The supported Operating Systems Windows Server 2016/windows 10 multisession.
 Readers
 
 #>
-
-
 $ScriptPath = [System.IO.Path]::GetDirectoryName($PSCommandPath)
 
 # Dot sourcing Functions.ps1 file
@@ -26,3 +24,6 @@ Write-Log -message 'Script being executed: Attempting to perform Hybrid Azure AD
 $output = dsregcmd /join
 
 Write-Log -Message "Attempt at Hybrid Azure AD Join operation: $output"
+
+# Run the auto-enroll command for MDM
+cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM
