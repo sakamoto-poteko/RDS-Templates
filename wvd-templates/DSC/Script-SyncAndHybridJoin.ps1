@@ -54,4 +54,4 @@ while ( -not(isHybridAadJoined)) {
 }
 
 # Run the auto-enroll command for MDM
-cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM
+# cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM

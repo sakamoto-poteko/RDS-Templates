@@ -26,4 +26,4 @@ $output = dsregcmd /join
 Write-Log -Message "Attempt at Hybrid Azure AD Join operation: $output"
 
 # Run the auto-enroll command for MDM
-cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM
+# cmd %windir%\system32\deviceenroller.exe /c /AutoEnrollMDM
