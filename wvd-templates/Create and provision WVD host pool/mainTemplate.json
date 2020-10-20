@@ -572,7 +572,7 @@
             "condition": "[equals(parameters('domainJoinType'), 'azureADJoin')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2018-10-01",
-            "name": "[concat(variables('rdshPrefix'), copyindex(),'/joinAzureADAndMDMEnroll')]",
+            "name": "[concat(variables('rdshPrefix'), copyindex(),'/aadj')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex())]"
@@ -580,9 +580,7 @@
             "properties": {
                 "publisher": "Microsoft.Azure.ActiveDirectory",
                 "type": "AADLoginForWindows",
-                "typeHandlerVersion": "1.0",
-                "settings": {
-                }
+                "typeHandlerVersion": "1.0"
             },
             "copy": {
                 "name": "aad-domain-join-loop",
@@ -626,7 +624,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joindomain')]",
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/joinAzureADAndMDMEnroll')]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), '0/extensions/aadj')]"
             ],
             "copy": {
                 "name": "first-rdsh-dsc",
@@ -676,7 +674,7 @@
                 "comments": "The following dependencies must be defined (even if conditionally deployed) in this template"
             },
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/joinAzureADAndMDMEnroll')]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('rdshPrefix'), copyindex(if(greater(parameters('rdshNumberOfInstances'), 1), 1, 0)), '/extensions/aadj')]",
                 "first-rdsh-dsc"
             ],
             "copy": {
