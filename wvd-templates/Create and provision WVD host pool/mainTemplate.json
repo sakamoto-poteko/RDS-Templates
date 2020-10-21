@@ -93,31 +93,6 @@
             },
             "defaultValue": ""
         },
-        "domainToJoin": {
-            "type": "string",
-            "metadata": {
-                "description": "FQDN of the AD Domain to which session host VMs are going to be joined. For example, 'contoso.com'."
-            }
-        },
-        "existingDomainUPN": {
-            "type": "string",
-            "metadata": {
-                "description": "A username in the domain that has privileges to join the session hosts to the domain. For example, 'user1@contoso.com'."
-            }
-        },
-        "existingDomainPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The password that corresponds to the existing domain username."
-            }
-        },
-        "ouPath": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "(Optional) Specifiy an organizational unit (OU) to place the new virtual machines when joining the domain. If you do not have a specific OU to place the virtual machines, leave it blank. Example OU: 'OU=testOU;DC=domain;DC=Domain;DC=com'"
-            }
-        },
         "existingVnetName": {
             "type": "string",
             "metadata": {
@@ -193,12 +168,7 @@
     },
     "variables": {
         "rdshPrefix": "[concat(parameters('rdshNamePrefix'), '-')]",
-        "existingDomainUsername": "[first(split(parameters('existingDomainUPN'), '@'))]",
         "subnet-id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]",
-        "existingTenantName": "[replace(parameters('existingTenantName'), '\"', '')]",
-        "hostPoolName": "[replace(parameters('hostPoolName'), '\"', '')]",
-        "hostPoolFriendlyName": "[variables('hostPoolName')]",
-        "hostPoolDescription": "Created through ARM template",
         "registrationExpirationHours": "48",
         "rdshVmNamesOutput": {
             "copy": [
@@ -324,9 +294,7 @@
                 },
                 "availabilitySet": "[if(not(parameters('enablePersistentDesktop')), main.getAvailabilitySet(variables('rdshPrefix')), json('null'))]",
                 "osProfile": {
-                    "computerName": "[concat(variables('rdshPrefix'), copyindex())]",
-                    "adminUsername": "[variables('existingDomainUsername')]",
-                    "adminPassword": "[parameters('existingDomainPassword')]"
+                    "computerName": "[concat(variables('rdshPrefix'), copyindex())]"
                 },
                 "storageProfile": {
                     "imageReference": "[if(equals(variables('rdshImageSourceLower'), 'customvhd'), main.getVMImageReferenceCustomVHD(variables('imageName')), variables('VMImageReference')[variables('rdshImageSourceLower')])]",
@@ -354,7 +322,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmName'),'/CustomScriptExtension')]",
+            "name": "[concat(variables('rdshPrefix'), copyindex(),'/aadj')]",
             "apiVersion": "2018-06-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
